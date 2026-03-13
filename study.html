@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini programming隊 - 古文助動詞暗記訓練</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f8ff; text-align: center; padding: 20px; }
+        h1 { color: #2e8b57; }
+        .card-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+        .card {
+            background: white; border: 3px solid #2e8b57; border-radius: 10px;
+            width: 250px; padding: 15px; cursor: pointer; transition: transform 0.2s;
+            box-shadow: 4px 4px 0px #2e8b57;
+        }
+        .card:hover { transform: scale(1.05); }
+        .name { font-size: 24px; font-weight: bold; color: #e91e63; margin-bottom: 10px; }
+        .details { display: none; text-align: left; background: #e0f2f1; padding: 10px; border-radius: 5px; }
+        .mission-log { margin-top: 30px; font-family: monospace; color: #555; }
+    </style>
+</head>
+<body>
+    <h1>🌲 助動詞地質調査ユニット 🌲</h1>
+    <div class="card-container" id="container"></div>
+
+    <div class="mission-log">
+        [SYSTEM]: 助動詞をタップしてデータを展開せよ！
+    </div>
+
+    <script>
+        const data = [
+            { n: "る", m: "受身・尊敬・自発・可能", c: "れ / れ / る / るる / るれ / れよ" },
+            { n: "らる", m: "受身・尊敬・自発・可能", c: "られ / られ / らる / らるる / らるれ / られよ" },
+            { n: "す", m: "使役・尊敬", c: "せ / せ / す / する / すれ / せよ" },
+            { n: "さす", m: "使役・尊敬", c: "させ / させ / さす / さする / さすれ / させよ" },
+            { n: "しむ", m: "使役・尊敬", c: "しめ / しめ / しむ / しむる / しむれ / しめよ" },
+            { n: "ず", m: "打消", c: "ず(ざら) / ず(ざり) / ず / ぬ(ざる) / ね(ざれ) / ざれ" },
+            { n: "べし", m: "推量・意志・可能・当然・命令・適当", c: "べく / べく / べし / べき / べけれ / ◯" },
+            { n: "けり", m: "過去・詠嘆", c: "けら / ◯ / けり / ける / けれ / ◯" }
+            // 他の助動詞もここに追加可能だ！
+        ];
+
+        const container = document.getElementById('container');
+
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="name">${item.n}</div>
+                <div class="details">
+                    <strong>意味:</strong> ${item.m}<br>
+                    <strong>活用:</strong> ${item.c}
+                </div>
+            `;
+            card.addEventListener('click', function() {
+                const details = this.querySelector('.details');
+                details.style.display = details.style.display === 'block' ? 'none' : 'block';
+                console.log(`[ACTION]: ${item.n} のデータを照会しました。`);
+            });
+            container.appendChild(card);
+        });
+    </script>
+</body>
+</html>
