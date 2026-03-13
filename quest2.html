@@ -2,19 +2,20 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="style.css">
 <title>WE Quest SV</title></head><body>
+
 <div id="field">
-    <div class="status" id="est" style="align-self: flex-start;">
-        <div id="en">Loading...</div>
-        <div class="hp-bar"><div id="eh" class="hp-fill"></div></div>
-    </div>
-    <div id="mon" style="font-size: 80px; text-align: center;">👾</div>
-    <div class="status" id="pst" style="align-self: flex-end;">
-        <div id="pn">YOU</div>
-        <div class="hp-bar"><div id="ph" class="hp-fill"></div></div>
-    </div>
+    <div class="status" id="est"><div id="en"></div><div class="hp-bar"><div id="eh" class="hp-fill"></div></div></div>
+    <div id="mon">👾</div>
+    <div class="status" id="pst" style="align-self: flex-end;"><div id="pn"></div><div class="hp-bar"><div id="ph" class="hp-fill"></div></div></div>
 </div>
-<div id="ui">
-    <div id="msg"></div>
-    <div id="cmd" class="cmd-grid"></div>
+
+<div id="ui"><div id="msg"></div><div id="cmd" class="cmd-grid"></div></div>
+
+<div id="party-screen">
+    <div style="padding:20px; font-weight:bold; background:var(--sv-blue);">手持ちの助動詞</div>
+    <div id="party-list" style="flex:1; overflow-y:auto;"></div>
+    <button onclick="$('party-screen').style.display='none'" class="run-btn" style="margin:10px;">もどる</button>
 </div>
-<script src="game.js"></script></body></html>
+
+<script src="game.js"></script>
+</body></html>
