@@ -1,132 +1,38 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini programming隊 - 助動詞コレクション</title> 
-    <style>
-        :root { --main: #ffcb05; --blue: #2a75bb; --bg: #f0f0f0; }
-        body { background: var(--bg); font-family: 'Courier New', sans-serif; margin: 0; text-align: center; }
-        #header { background: var(--blue); color: white; padding: 10px; box-shadow: 0 4px var(--main); }
-        
-        /* モンスターエリア */
-        #battle-field { height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
-        #monster { font-size: 80px; transition: transform 0.3s; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2)); }
-        .catch-msg { position: absolute; top: 20px; color: var(--blue); font-weight: bold; font-size: 1.5rem; opacity: 0; }
-
-        /* クイズエリア */
-        #question { font-size: 1.2rem; padding: 20px; font-weight: bold; min-height: 60px; }
-        .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        button { background: white; border: 3px solid var(--blue); border-radius: 15px; padding: 15px; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
-        button:hover { background: var(--main); border-color: white; }
-
-        /* 図鑑エリア */
-        #collection { margin-top: 30px; border-top: 4px dashed var(--blue); padding: 20px; background: white; }
-        .dex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
-        .dex-item { width: 60px; height: 60px; border: 2px solid #ccc; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; opacity: 0.3; background: #eee; }
-        .dex-item.active { opacity: 1; background: var(--main); border-color: var(--blue); transform: scale(1.1); }
-    </style>
-</head>
-<body>
-
-    <div id="header">
-        <h1>🌲 助動詞図鑑 QUEST 🌲</h1>
-        <div>SCORE: <span id="score">0</span> | GOT: <span id="got-count">0</span>/27</div>
-    </div>
-
-    <div id="battle-field">
-        <div id="catch-msg" class="catch-msg">GET!!</div>
-        <div id="monster">❓</div>
-        <div id="monster-name" style="font-weight: bold; margin-top: 10px;">Wild Monster</div>
-    </div>
-
-    <div id="question">データロード中...</div>
-    <div class="choices" id="choices"></div>
-
-    <div id="collection">
-        <h3>📜 助動詞図鑑 (COLLECTION)</h3>
-        <div class="dex-grid" id="dex-grid"></div>
-    </div>
-
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WE Quest</title><style>
+:root{--c:#0f4;--b:#000}body{background:--b;color:--c;font-family:monospace;margin:0;overflow:hidden}
+#s{height:100vh;display:flex;flex-direction:column}#b{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#010}
+.w{width:80%;border:1px solid #fff;padding:5px;margin:5px}.h{height:8px;background:#333;margin-top:4px}
+.f{height:100%;background:--c;transition:width .3s}#m{height:180px;font-size:60px}
+#u{height:220px;background:#111;border-top:2px solid #444;padding:10px}
+#l{height:30px;font-size:.8rem;border-bottom:1px solid #333}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px}
+button{background:#222;color:#fff;border:1px solid #666;padding:10px;font-size:.7rem;cursor:pointer}
+</style></head><body><div id="s"><div id="b">
+<div class="w" id="ew">n/a<div class="h"><div id="eh" class="f"></div></div></div>
+<div id="m">👾</div><div class="w" id="pw">YOU<div class="h"><div id="ph" class="f"></div></div></div>
+</div><div id="u"><div id="l"></div><div id="c" class="g"></div></div></div>
 <script>
-    let db = [];
-    let score = 0;
-    let collection = new Set();
-    const monsterIcons = ["🦁", "🐯", "🦖", "🐉", "🐙", "🦊", "🐻", "🦄", "🦅", "🐸", "🐍", "🐺"];
-
-    async function loadData() {
-        // tanngo.jsonをフェッチ
-        try {
-            const response = await fetch('./tanngo.json');
-            db = await response.json();
-            initDex();
-            next();
-        } catch (e) {
-            document.getElementById('question').innerText = "JSON読み込み失敗！";
-        }
-    }
-
-    function initDex() {
-        const grid = document.getElementById('dex-grid');
-        db.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'dex-item';
-            div.id = `dex-${item.n}`;
-            div.innerText = item.n.substring(0, 1);
-            grid.appendChild(div);
-        });
-    }
-
-    function next() {
-        const item = db[Math.floor(Math.random() * db.length)];
-        const isMeaning = Math.random() > 0.5;
-        const qText = isMeaning ? `「${item.n}」の意味はどれだ？` : `「${item.n}」の終止形（基本形）を選べ！`;
-        const answer = isMeaning ? item.m : item.c[2];
-
-        document.getElementById('monster').innerText = monsterIcons[Math.floor(Math.random() * monsterIcons.length)];
-        document.getElementById('monster-name').innerText = `野生の「${item.n}」`;
-        document.getElementById('question').innerText = qText;
-        
-        const choices = [answer, "打消", "過去・詠嘆", "ら / り / り / る"].sort(() => Math.random() - 0.5);
-        const container = document.getElementById('choices');
-        container.innerHTML = "";
-        
-        choices.forEach(c => {
-            const btn = document.createElement('button');
-            btn.innerText = c;
-            btn.onclick = () => check(c === answer, item.n);
-            container.appendChild(btn);
-        });
-    }
-
-    function check(isCorrect, name) {
-        if(isCorrect) {
-            score += 100;
-            // 図鑑登録
-            if(!collection.has(name)) {
-                collection.add(name);
-                document.getElementById(`dex-${name}`).classList.add('active');
-                showCatchMsg();
-            }
-            document.getElementById('score').innerText = score;
-            document.getElementById('got-count').innerText = collection.size;
-            console.log(`[ACTION]: ${name} を仲間にした！`);
-            next();
-        } else {
-            document.body.style.background = "#ffcccc";
-            setTimeout(() => document.body.style.background = "#f0f0f0", 200);
-            alert("逃げられた！正解は " + name + " のデータだぞ。");
-            next();
-        }
-    }
-
-    function showCatchMsg() {
-        const msg = document.getElementById('catch-msg');
-        msg.style.opacity = 1;
-        setTimeout(() => msg.style.opacity = 0, 800);
-    }
-
-    window.onload = () => setTimeout(loadData, 1000);
-</script>
-</body>
-</html>
+let D=[],G={},P={h:100},E={},K;const $=i=>document.getElementById(i),L=t=>$('l').innerText=t;
+async function init(){
+const r1=await fetch('./tanngo.json'),r2=await fetch('./config.json');
+D=await r1.json();G=await r2.json();pick();}
+function pick(){
+L("初期の三匹を選択せよ");$('c').innerHTML="";
+G.starters.forEach(s=>{$('c').appendChild(btn(s.n,()=>{P=s;P.h=G.player.hp;start();}))});}
+function btn(t,f){const b=document.createElement('button');b.innerText=t;b.onclick=f;return b;}
+function start(){spawn();menu();}
+function spawn(){E=D[Math.floor(Math.random()*D.length)];E.h=100;$('m').innerText="👾";upd();L(`野生の ${E.n} が現れた！`);}
+function upd(){$('eh').style.width=E.h+"%";$('ph').style.width=(P.h/G.player.hp)*100+"%";$('ew').innerText=`${E.n} HP:${E.h}%`;$('pw').innerText=`${P.n} HP:${P.h}`;}
+function menu(){$('c').innerHTML="";
+$('c').appendChild(btn("解析(ATK)",atk));$('c').appendChild(btn("ボール",get));$('c').appendChild(btn("逃げる",spawn));}
+function atk(){$('c').innerHTML="";L(`${E.n}の[終止形]は？`);
+const ok=E.c[2],cs=shf([ok,"れ","ら","る"]).slice(0,4);
+cs.forEach(v=>{$('c').appendChild(btn(v,()=>{
+if(v===ok){E.h-=G.balance.dmg;L("解析成功！大ダメージ！");}else{P.h-=G.balance.heal;L("解析ミス！反撃！");}
+upd();setTimeout(E.h<=0||P.h<=0?spawn:menu,800);}))});}
+function get(){L("ボールを投げた！");$('m').innerText="🔴";
+setTimeout(()=>{const p=(100-E.h)+10;if(Math.random()*100<p){L("ゲット成功！");$('m').innerText="🎉";setTimeout(spawn,1000);}else{L("逃げられた！");menu();}},800);}
+function shf(a){return a.sort(()=>Math.random()-.5);}
+init();</script></body></html>
