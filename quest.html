@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini programming隊 - 助動詞バスターズ</title>
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background: #1a1a1a; color: #00ff00; text-align: center; padding: 20px; overflow-x: hidden; }
+        #game-container { max-width: 600px; margin: 0 auto; border: 4px solid #00ff00; padding: 20px; background: #000; box-shadow: 0 0 20px #00ff00; }
+        .stat-bar { display: flex; justify-content: space-around; font-size: 1.2rem; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        #question-box { font-size: 1.5rem; margin: 30px 0; min-height: 80px; color: #fff; }
+        .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        button { background: #222; border: 2px solid #00ff00; color: #00ff00; padding: 15px; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #00ff00; color: #000; }
+        button:active { transform: translateY(3px); }
+        #mission-log { height: 100px; overflow-y: auto; background: #111; border: 1px solid #333; margin-top: 20px; padding: 10px; text-align: left; font-size: 0.8rem; color: #aaa; }
+        .combo { color: #ffeb3b; font-weight: bold; font-size: 1.5rem; }
+        .correct-anim { animation: flash 0.3s; }
+        @keyframes flash { from { background: #004400; } to { background: #000; } }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <h1>🌲 助動詞 QUEST 🌲</h1>
+        <div class="stat-bar">
+            <span>SCORE: <span id="score">0</span></span>
+            <span>COMBO: <span id="combo">0</span></span>
+        </div>
+
+        <div id="question-box">
+            [DATA SCANNING...]
+        </div>
+
+        <div class="choices" id="choices">
+            </div>
+
+        <div id="mission-log">
+            [SYSTEM]: 探検隊、準備はいいか？助動詞の活用を解析せよ！<br>
+        </div>
+    </div>
+
+<script>
+    const quizData = [
+        { q: "「る」の意味は？", a: "受身・尊敬・自発・可能", c: ["受身・尊敬・自発・可能", "使役・尊敬", "打消", "過去・詠嘆"] },
+        { q: "「る」の連体形は？", a: "るる", c: ["る", "るる", "るれ", "れよ"] },
+        { q: "「べし」の意味は？", a: "推量・意志・可能・当然・命令・適当", c: ["推量・意志・可能・当然・命令・適当", "打消推量・打消意志", "希望", "比況"] },
+        { q: "「ず」の連体形（補助活用含む）は？", a: "ぬ・ざる", c: ["ず", "ね", "ぬ・ざる", "ざれ"] },
+        { q: "「けり」の意味は？", a: "過去・詠嘆", c: ["過去・詠嘆", "現在推量", "完了・存続", "断定"] },
+        { q: "「き」の未然形は？", a: "せ", c: ["せ", "き", "し", "しか"] },
+        { q: "「り」の接続条件は？", a: "サ未四已（さみしい）", c: ["サ未四已（さみしい）", "連用形接続", "終止形接続", "体言接続"] }
+    ];
+
+    let score = 0;
+    let combo = 0;
+    const scoreEl = document.getElementById('score');
+    const comboEl = document.getElementById('combo');
+    const qBox = document.getElementById('question-box');
+    const cBox = document.getElementById('choices');
+    const log = document.getElementById('mission-log');
+
+    function missionLog(msg) {
+        const div = document.createElement('div');
+        div.textContent = `[LOG]: ${msg}`;
+        log.prepend(div);
+    }
+
+    function nextQuestion() {
+        const data = quizData[Math.floor(Math.random() * quizData.length)];
+        qBox.textContent = data.q;
+        cBox.innerHTML = "";
+        
+        // 選択肢をシャッフル
+        const shuffled = [...data.c].sort(() => Math.random() - 0.5);
+        
+        shuffled.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.textContent = choice;
+            btn.onclick = () => checkAnswer(choice, data.a);
+            cBox.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(input, correct) {
+        if (input === correct) {
+            score += 100 + (combo * 10);
+            combo++;
+            missionLog(`正解！クリティカルヒット！ (+${100 + (combo * 10)})`);
+            document.getElementById('game-container').classList.add('correct-anim');
+            setTimeout(() => document.getElementById('game-container').classList.remove('correct-anim'), 300);
+        } else {
+            combo = 0;
+            missionLog(`ミス！システムに負荷がかかっています... (正解は: ${correct})`);
+        }
+        scoreEl.textContent = score;
+        comboEl.textContent = combo;
+        nextQuestion();
+    }
+
+    // 初回起動
+    nextQuestion();
+</script>
+</body>
+</html>
