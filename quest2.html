@@ -62,11 +62,14 @@
 
     // JSONをフェッチ（別ファイルにする場合は 'aux_verbs.json' に書き換え）
     async function loadData() {
-        // ここでは便宜上、即時データを代入するが、本来は fetch('./aux_verbs.json')
+    try {
         const response = await fetch('./tanngo.json');
-        db = response;
+        db = await response.json(); // ここで中身をパース！
         startQuest();
+    } catch (e) {
+        console.error("MISSION FAILED: JSONの読み込みに失敗したぞ！", e);
     }
+}
 
     function startQuest() {
         document.getElementById('mission-name').innerText = "助動詞殲滅作戦";
