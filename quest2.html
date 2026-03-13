@@ -62,12 +62,19 @@
 
     // JSONをフェッチ（別ファイルにする場合は 'aux_verbs.json' に書き換え）
     async function loadData() {
+    const qEl = document.getElementById('question');
+    qEl.innerText = "データロード中... (Fetch開始)"; // 進行状況を可視化！
+
     try {
         const response = await fetch('./tanngo.json');
-        db = await response.json(); // ここで中身をパース！
+        qEl.innerText = "レスポンス受信。パース中...";
+        
+        db = await response.json(); 
+        console.log("SUCCESS: データ同期完了！", db);
         startQuest();
     } catch (e) {
-        console.error("MISSION FAILED: JSONの読み込みに失敗したぞ！", e);
+        qEl.innerText = "ERROR: JSONが読み込めないぞ！";
+        console.error("MISSION FAILED:", e);
     }
 }
 
@@ -114,7 +121,7 @@
         } else {
             score = Math.max(0, score - 50);
             document.body.style.background = "#300";
-            setTimeout(() => document.body.style.background = var(--bg), 100);
+            setTimeout(() => document.body.style.background = "var(--bg)", 100);
         }
         document.getElementById('score').innerText = score;
         next();
