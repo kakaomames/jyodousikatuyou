@@ -1,0 +1,84 @@
+:root {
+    --sv-blue: rgba(40, 120, 200, 0.85);
+    --sv-orange: rgba(240, 110, 40, 0.85);
+    --bg-dark: #121212;
+    --text: #fff;
+}
+
+body {
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* バトルフィールド */
+#field {
+    height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    background: radial-gradient(circle at center, #222, #000);
+}
+
+/* ステータスウィンドウ (SV風の斜めカット) */
+.status {
+    width: 240px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+    border-left: 5px solid var(--sv-blue);
+    padding: 10px;
+    clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
+}
+
+.hp-bar {
+    height: 6px;
+    background: #333;
+    border-radius: 3px;
+    margin-top: 5px;
+}
+
+.hp-fill {
+    height: 100%;
+    background: #4caf50;
+    transition: width 0.4s;
+}
+
+/* メインメニュー (右下に配置) */
+#ui {
+    height: 40vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#msg {
+    flex: 1;
+    padding: 20px;
+    font-size: 1.1rem;
+    background: rgba(0,0,0,0.5);
+}
+
+.cmd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 15px;
+    background: #fff;
+}
+
+button {
+    padding: 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
+    transition: 0.2s;
+}
+
+.atk-btn { background: var(--sv-orange); color: #fff; }
+.ball-btn { background: var(--sv-blue); color: #fff; }
+.run-btn { background: #555; color: #fff; }
+button:hover { transform: scale(1.05); filter: brightness(1.2); }
