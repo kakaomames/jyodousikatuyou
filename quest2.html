@@ -120,7 +120,16 @@
         next();
     }
 
-    loadData();
+    // スクリプトの最後の方、あるいは loadData(); の呼び出し部分をこう書き換えるんだ！
+
+window.onload = () => {
+    console.log("SYSTEM: システム起動準備中...1秒後にデータロードを開始します。");
+    
+    setTimeout(() => {
+        console.log("SYSTEM: データロード開始！");
+        loadData();
+    }, 1000); // 1000ミリ秒 = 1秒
+};
 </script>
 </body>
 </html>
