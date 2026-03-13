@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini programming隊 - 古文覚醒 EXTREME</title>
+    <style>
+        :root { --neon: #00ff41; --damage: #ff0055; --bg: #050505; }
+        body { background: var(--bg); color: var(--neon); font-family: sans-serif; overflow: hidden; margin: 0; }
+        
+        /* --- CSS演出: 練り上げたエフェクト --- */
+        #stage { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: space-around; }
+        
+        /* 敵のオーラ演出 */
+        #enemy-wrap { position: relative; width: 200px; height: 200px; display: flex; justify-content: center; align-items: center; }
+        #enemy-aura { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--neon); filter: blur(10px); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 0.2; } 100% { transform: scale(0.8); opacity: 0.5; } }
+        
+        #enemy-sprite { font-size: 80px; z-index: 10; transition: transform 0.1s; }
+        
+        /* 攻撃時の震え */
+        .shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } }
+
+        /* スコア表示 */
+        #score-panel { font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 10px var(--neon); }
+
+        /* 選択肢ボタンの演出 */
+        .choices { width: 90%; max-width: 400px; display: grid; gap: 10px; }
+        button { 
+            background: transparent; border: 2px solid var(--neon); color: var(--neon); padding: 15px;
+            font-size: 1rem; border-radius: 5px; cursor: pointer; transition: 0.3s;
+            position: relative; overflow: hidden;
+        }
+        button:hover { background: var(--neon); color: var(--bg); box-shadow: 0 0 20px var(--neon); }
+        button::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: rgba(255,255,255,0.2); transition: 0.3s; }
+        button:hover::after { left: 100%; }
+
+        /* ダメージ通知 */
+        #dmg-pop { position: absolute; color: white; font-weight: bold; font-size: 2rem; pointer-events: none; opacity: 0; }
+    </style>
+</head>
+<body>
+
+    <div id="stage">
+        <div id="score-panel">MISSION: <span id="mission-name">調査中...</span> | SCORE: <span id="score">0</span></div>
+        
+        <div id="enemy-wrap">
+            <div id="enemy-aura"></div>
+            <div id="enemy-sprite">👾</div>
+            <div id="dmg-pop">CRITICAL!</div>
+        </div>
+
+        <div id="question" style="font-size: 1.5rem; text-align: center; padding: 0 20px;">LOADING DATA...</div>
+
+        <div class="choices" id="choices"></div>
+    </div>
+
+<script>
+    let db = [];
+    let score = 0;
+
+    // JSONをフェッチ（別ファイルにする場合は 'aux_verbs.json' に書き換え）
+    async function loadData() {
+        // ここでは便宜上、即時データを代入するが、本来は fetch('./aux_verbs.json')
+        const response = await fetch('./tanngo.json');
+        db = response;
+        startQuest();
+    }
+
+    function startQuest() {
+        document.getElementById('mission-name').innerText = "助動詞殲滅作戦";
+        next();
+    }
+
+    function next() {
+        const item = db[Math.floor(Math.random() * db.length)];
+        const isMeaning = Math.random() > 0.5;
+        const qText = isMeaning ? `「${item.n}」の意味を選択せよ` : `「${item.n}」の終止形を選択せよ`;
+        const answer = isMeaning ? item.m : item.c[2];
+
+        document.getElementById('question').innerText = qText;
+        
+        const choices = [answer, "打消", "過去・詠嘆", "ら / り / り / る"].sort(() => Math.random() - 0.5);
+        
+        const container = document.getElementById('choices');
+        container.innerHTML = "";
+        choices.forEach(c => {
+            const btn = document.createElement('button');
+            btn.innerText = c;
+            btn.onclick = () => check(c === answer);
+            container.appendChild(btn);
+        });
+    }
+
+    function check(isCorrect) {
+        const sprite = document.getElementById('enemy-sprite');
+        const dmg = document.getElementById('dmg-pop');
+        
+        if(isCorrect) {
+            score += 150;
+            sprite.classList.add('shake');
+            dmg.style.opacity = 1;
+            dmg.style.transform = "translateY(-50px)";
+            setTimeout(() => {
+                sprite.classList.remove('shake');
+                dmg.style.opacity = 0;
+                dmg.style.transform = "translateY(0)";
+            }, 500);
+            console.log("ACTION: クリティカルヒット！");
+        } else {
+            score = Math.max(0, score - 50);
+            document.body.style.background = "#300";
+            setTimeout(() => document.body.style.background = var(--bg), 100);
+        }
+        document.getElementById('score').innerText = score;
+        next();
+    }
+
+    loadData();
+</script>
+</body>
+</html>
