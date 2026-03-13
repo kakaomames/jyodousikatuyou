@@ -3,140 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini programming隊 - 古文覚醒 EXTREME</title>
+    <title>Gemini programming隊 - 助動詞コレクション</title>
     <style>
-        :root { --neon: #00ff41; --damage: #ff0055; --bg: #050505; }
-        body { background: var(--bg); color: var(--neon); font-family: sans-serif; overflow: hidden; margin: 0; }
+        :root { --main: #ffcb05; --blue: #2a75bb; --bg: #f0f0f0; }
+        body { background: var(--bg); font-family: 'Courier New', sans-serif; margin: 0; text-align: center; }
+        #header { background: var(--blue); color: white; padding: 10px; box-shadow: 0 4px var(--main); }
         
-        /* --- CSS演出: 練り上げたエフェクト --- */
-        #stage { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: space-around; }
-        
-        /* 敵のオーラ演出 */
-        #enemy-wrap { position: relative; width: 200px; height: 200px; display: flex; justify-content: center; align-items: center; }
-        #enemy-aura { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--neon); filter: blur(10px); animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 0.2; } 100% { transform: scale(0.8); opacity: 0.5; } }
-        
-        #enemy-sprite { font-size: 80px; z-index: 10; transition: transform 0.1s; }
-        
-        /* 攻撃時の震え */
-        .shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } }
+        /* モンスターエリア */
+        #battle-field { height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
+        #monster { font-size: 80px; transition: transform 0.3s; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2)); }
+        .catch-msg { position: absolute; top: 20px; color: var(--blue); font-weight: bold; font-size: 1.5rem; opacity: 0; }
 
-        /* スコア表示 */
-        #score-panel { font-weight: bold; font-size: 1.2rem; text-shadow: 0 0 10px var(--neon); }
+        /* クイズエリア */
+        #question { font-size: 1.2rem; padding: 20px; font-weight: bold; min-height: 60px; }
+        .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+        button { background: white; border: 3px solid var(--blue); border-radius: 15px; padding: 15px; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
+        button:hover { background: var(--main); border-color: white; }
 
-        /* 選択肢ボタンの演出 */
-        .choices { width: 90%; max-width: 400px; display: grid; gap: 10px; }
-        button { 
-            background: transparent; border: 2px solid var(--neon); color: var(--neon); padding: 15px;
-            font-size: 1rem; border-radius: 5px; cursor: pointer; transition: 0.3s;
-            position: relative; overflow: hidden;
-        }
-        button:hover { background: var(--neon); color: var(--bg); box-shadow: 0 0 20px var(--neon); }
-        button::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: rgba(255,255,255,0.2); transition: 0.3s; }
-        button:hover::after { left: 100%; }
-
-        /* ダメージ通知 */
-        #dmg-pop { position: absolute; color: white; font-weight: bold; font-size: 2rem; pointer-events: none; opacity: 0; }
+        /* 図鑑エリア */
+        #collection { margin-top: 30px; border-top: 4px dashed var(--blue); padding: 20px; background: white; }
+        .dex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
+        .dex-item { width: 60px; height: 60px; border: 2px solid #ccc; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; opacity: 0.3; background: #eee; }
+        .dex-item.active { opacity: 1; background: var(--main); border-color: var(--blue); transform: scale(1.1); }
     </style>
 </head>
 <body>
 
-    <div id="stage">
-        <div id="score-panel">MISSION: <span id="mission-name">調査中...</span> | SCORE: <span id="score">0</span></div>
-        
-        <div id="enemy-wrap">
-            <div id="enemy-aura"></div>
-            <div id="enemy-sprite">👾</div>
-            <div id="dmg-pop">CRITICAL!</div>
-        </div>
+    <div id="header">
+        <h1>🌲 助動詞図鑑 QUEST 🌲</h1>
+        <div>SCORE: <span id="score">0</span> | GOT: <span id="got-count">0</span>/27</div>
+    </div>
 
-        <div id="question" style="font-size: 1.5rem; text-align: center; padding: 0 20px;">LOADING DATA...</div>
+    <div id="battle-field">
+        <div id="catch-msg" class="catch-msg">GET!!</div>
+        <div id="monster">❓</div>
+        <div id="monster-name" style="font-weight: bold; margin-top: 10px;">Wild Monster</div>
+    </div>
 
-        <div class="choices" id="choices"></div>
+    <div id="question">データロード中...</div>
+    <div class="choices" id="choices"></div>
+
+    <div id="collection">
+        <h3>📜 助動詞図鑑 (COLLECTION)</h3>
+        <div class="dex-grid" id="dex-grid"></div>
     </div>
 
 <script>
     let db = [];
     let score = 0;
+    let collection = new Set();
+    const monsterIcons = ["🦁", "🐯", "🦖", "🐉", "🐙", "🦊", "🐻", "🦄", "🦅", "🐸", "🐍", "🐺"];
 
-    // JSONをフェッチ（別ファイルにする場合は 'aux_verbs.json' に書き換え）
     async function loadData() {
-    const qEl = document.getElementById('question');
-    qEl.innerText = "データロード中... (Fetch開始)"; // 進行状況を可視化！
-
-    try {
-        const response = await fetch('./tanngo.json');
-        qEl.innerText = "レスポンス受信。パース中...";
-        
-        db = await response.json(); 
-        console.log("SUCCESS: データ同期完了！", db);
-        startQuest();
-    } catch (e) {
-        qEl.innerText = "ERROR: JSONが読み込めないぞ！";
-        console.error("MISSION FAILED:", e);
+        // tanngo.jsonをフェッチ
+        try {
+            const response = await fetch('./tanngo.json');
+            db = await response.json();
+            initDex();
+            next();
+        } catch (e) {
+            document.getElementById('question').innerText = "JSON読み込み失敗！";
+        }
     }
-}
 
-    function startQuest() {
-        document.getElementById('mission-name').innerText = "助動詞殲滅作戦";
-        next();
+    function initDex() {
+        const grid = document.getElementById('dex-grid');
+        db.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'dex-item';
+            div.id = `dex-${item.n}`;
+            div.innerText = item.n.substring(0, 1);
+            grid.appendChild(div);
+        });
     }
 
     function next() {
         const item = db[Math.floor(Math.random() * db.length)];
         const isMeaning = Math.random() > 0.5;
-        const qText = isMeaning ? `「${item.n}」の意味を選択せよ` : `「${item.n}」の終止形を選択せよ`;
+        const qText = isMeaning ? `「${item.n}」の意味はどれだ？` : `「${item.n}」の終止形（基本形）を選べ！`;
         const answer = isMeaning ? item.m : item.c[2];
 
+        document.getElementById('monster').innerText = monsterIcons[Math.floor(Math.random() * monsterIcons.length)];
+        document.getElementById('monster-name').innerText = `野生の「${item.n}」`;
         document.getElementById('question').innerText = qText;
         
         const choices = [answer, "打消", "過去・詠嘆", "ら / り / り / る"].sort(() => Math.random() - 0.5);
-        
         const container = document.getElementById('choices');
         container.innerHTML = "";
+        
         choices.forEach(c => {
             const btn = document.createElement('button');
             btn.innerText = c;
-            btn.onclick = () => check(c === answer);
+            btn.onclick = () => check(c === answer, item.n);
             container.appendChild(btn);
         });
     }
 
-    function check(isCorrect) {
-        const sprite = document.getElementById('enemy-sprite');
-        const dmg = document.getElementById('dmg-pop');
-        
+    function check(isCorrect, name) {
         if(isCorrect) {
-            score += 150;
-            sprite.classList.add('shake');
-            dmg.style.opacity = 1;
-            dmg.style.transform = "translateY(-50px)";
-            setTimeout(() => {
-                sprite.classList.remove('shake');
-                dmg.style.opacity = 0;
-                dmg.style.transform = "translateY(0)";
-            }, 500);
-            console.log("ACTION: クリティカルヒット！");
+            score += 100;
+            // 図鑑登録
+            if(!collection.has(name)) {
+                collection.add(name);
+                document.getElementById(`dex-${name}`).classList.add('active');
+                showCatchMsg();
+            }
+            document.getElementById('score').innerText = score;
+            document.getElementById('got-count').innerText = collection.size;
+            console.log(`[ACTION]: ${name} を仲間にした！`);
+            next();
         } else {
-            score = Math.max(0, score - 50);
-            document.body.style.background = "#300";
-            setTimeout(() => document.body.style.background = "var(--bg)", 100);
+            document.body.style.background = "#ffcccc";
+            setTimeout(() => document.body.style.background = "#f0f0f0", 200);
+            alert("逃げられた！正解は " + name + " のデータだぞ。");
+            next();
         }
-        document.getElementById('score').innerText = score;
-        next();
     }
 
-    // スクリプトの最後の方、あるいは loadData(); の呼び出し部分をこう書き換えるんだ！
+    function showCatchMsg() {
+        const msg = document.getElementById('catch-msg');
+        msg.style.opacity = 1;
+        setTimeout(() => msg.style.opacity = 0, 800);
+    }
 
-window.onload = () => {
-    console.log("SYSTEM: システム起動準備中...1秒後にデータロードを開始します。");
-    
-    setTimeout(() => {
-        console.log("SYSTEM: データロード開始！");
-        loadData();
-    }, 1000); // 1000ミリ秒 = 1秒
-};
+    window.onload = () => setTimeout(loadData, 1000);
 </script>
 </body>
 </html>
