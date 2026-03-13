@@ -1,38 +1,69 @@
 <!DOCTYPE html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WE Quest</title><style>
-:root{--c:#0f4;--b:#000}body{background:--b;color:--c;font-family:monospace;margin:0;overflow:hidden}
-#s{height:100vh;display:flex;flex-direction:column}#b{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#010}
-.w{width:80%;border:1px solid #fff;padding:5px;margin:5px}.h{height:8px;background:#333;margin-top:4px}
-.f{height:100%;background:--c;transition:width .3s}#m{height:180px;font-size:60px}
-#u{height:220px;background:#111;border-top:2px solid #444;padding:10px}
-#l{height:30px;font-size:.8rem;border-bottom:1px solid #333}
-.g{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px}
-button{background:#222;color:#fff;border:1px solid #666;padding:10px;font-size:.7rem;cursor:pointer}
-</style></head><body><div id="s"><div id="b">
-<div class="w" id="ew">n/a<div class="h"><div id="eh" class="f"></div></div></div>
-<div id="m">👾</div><div class="w" id="pw">YOU<div class="h"><div id="ph" class="f"></div></div></div>
-</div><div id="u"><div id="l"></div><div id="c" class="g"></div></div></div>
+<link rel="stylesheet" href="style.css">
+<title>WE Quest SV</title></head><body>
+<div id="field">
+    <div class="status" id="est" style="align-self: flex-start;">
+        <div id="en">Loading...</div>
+        <div class="hp-bar"><div id="eh" class="hp-fill"></div></div>
+    </div>
+    <div id="mon" style="font-size: 80px; text-align: center;">👾</div>
+    <div class="status" id="pst" style="align-self: flex-end;">
+        <div id="pn">YOU</div>
+        <div class="hp-bar"><div id="ph" class="hp-fill"></div></div>
+    </div>
+</div>
+<div id="ui">
+    <div id="msg"></div>
+    <div id="cmd" class="cmd-grid"></div>
+</div>
 <script>
-let D=[],G={},P={h:100},E={},K;const $=i=>document.getElementById(i),L=t=>$('l').innerText=t;
+let D=[],G={},P={},E={};const $=i=>document.getElementById(i),L=t=>$('msg').innerText=t;
 async function init(){
-const r1=await fetch('./tanngo.json'),r2=await fetch('./config.json');
-D=await r1.json();G=await r2.json();pick();}
-function pick(){
-L("初期の三匹を選択せよ");$('c').innerHTML="";
-G.starters.forEach(s=>{$('c').appendChild(btn(s.n,()=>{P=s;P.h=G.player.hp;start();}))});}
-function btn(t,f){const b=document.createElement('button');b.innerText=t;b.onclick=f;return b;}
-function start(){spawn();menu();}
-function spawn(){E=D[Math.floor(Math.random()*D.length)];E.h=100;$('m').innerText="👾";upd();L(`野生の ${E.n} が現れた！`);}
-function upd(){$('eh').style.width=E.h+"%";$('ph').style.width=(P.h/G.player.hp)*100+"%";$('ew').innerText=`${E.n} HP:${E.h}%`;$('pw').innerText=`${P.n} HP:${P.h}`;}
-function menu(){$('c').innerHTML="";
-$('c').appendChild(btn("解析(ATK)",atk));$('c').appendChild(btn("ボール",get));$('c').appendChild(btn("逃げる",spawn));}
-function atk(){$('c').innerHTML="";L(`${E.n}の[終止形]は？`);
-const ok=E.c[2],cs=shf([ok,"れ","ら","る"]).slice(0,4);
-cs.forEach(v=>{$('c').appendChild(btn(v,()=>{
-if(v===ok){E.h-=G.balance.dmg;L("解析成功！大ダメージ！");}else{P.h-=G.balance.heal;L("解析ミス！反撃！");}
-upd();setTimeout(E.h<=0||P.h<=0?spawn:menu,800);}))});}
-function get(){L("ボールを投げた！");$('m').innerText="🔴";
-setTimeout(()=>{const p=(100-E.h)+10;if(Math.random()*100<p){L("ゲット成功！");$('m').innerText="🎉";setTimeout(spawn,1000);}else{L("逃げられた！");menu();}},800);}
+    const [r1,r2]=await Promise.all([fetch('./tanngo.json'),fetch('./config.json')]);
+    D=await r1.json();G=await r2.json();
+    L("最初のパートナーを選んで！");
+    $('cmd').innerHTML="";
+    G.starters.forEach(s=>{
+        const b=document.createElement('button');b.innerText=s.n;b.className="atk-btn";
+        b.onclick=()=>{P=s;P.h=G.player.hp;spawn();};
+        $('cmd').appendChild(b);
+    });
+}
+function spawn(){
+    E=D[Math.floor(Math.random()*D.length)];E.h=100;$('mon').innerText="👾";upd();
+    L(`野生の ${E.n} が飛び出してきた！`);menu();
+}
+function upd(){
+    $('eh').style.width=E.h+"%";$('ph').style.width=(P.h/G.player.hp)*100+"%";
+    $('en').innerText=E.n;$('pn').innerText=P.n;
+}
+function menu(){
+    const c=$('cmd');c.innerHTML="";
+    const b1=document.createElement('button');b1.innerText="たたかう";b1.className="atk-btn";b1.onclick=atk;
+    const b2=document.createElement('button');b2.innerText="バッグ";b2.className="ball-btn";b2.onclick=get;
+    const b3=document.createElement('button');b3.innerText="にげる";b3.className="run-btn";b3.onclick=spawn;
+    [b1,b2,b3].forEach(b=>c.appendChild(b));
+}
+function atk(){
+    $('cmd').innerHTML="";L(`${E.n}を解析中...意味を選べ！`);
+    const ok=E.m,cs=shf([ok,"打消","過去","使役"]).slice(0,4);
+    cs.forEach(v=>{
+        const b=document.createElement('button');b.innerText=v;b.className="atk-btn";
+        b.onclick=()=>{
+            if(v===ok){E.h-=G.balance.dmg;L("効果は ばつぐんだ！");}
+            else{P.h-=G.balance.heal;L("解析に失敗した！");}
+            upd();setTimeout(E.h<=0||P.h<=0?spawn:menu,1000);
+        };
+        $('cmd').appendChild(b);
+    });
+}
+function get(){
+    L("モンスターボールを投げた！");$('mon').innerText="🔴";
+    setTimeout(()=>{
+        if(Math.random()*100 < (100-E.h)+10){L(`${E.n}を捕まえた！`);$('mon').innerText="✨";setTimeout(spawn,1500);}
+        else{L("だめだ！ボールから出てしまった！");menu();}
+    },1000);
+}
 function shf(a){return a.sort(()=>Math.random()-.5);}
 init();</script></body></html>
