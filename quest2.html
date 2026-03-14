@@ -3,16 +3,26 @@
 <link rel="stylesheet" href="style.css">
 <title>WE Quest SV</title></head><body>
 
+<div id="title-screen" style="position:absolute; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg, #000, #1a1a2e); z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+    <h1 style="color:#fff; font-size:2.5rem; letter-spacing:5px; text-shadow:0 0 15px var(--b);">WE QUEST</h1>
+    <p style="color:#aaa; margin-bottom:30px;">Gemini programming隊 調査任務</p>
+    <div id="start-btn-area" style="display:flex; flex-direction:column; gap:10px; width:80%;">
+        </div>
+</div>
+
 <div id="field">
     <div class="status" id="est"><div id="en"></div><div class="hp-bar"><div id="eh" class="hp-fill"></div></div></div>
     <div id="mon">👾</div>
-    <div class="status" id="pst" style="align-self: flex-end;"><div id="pn"></div><div class="hp-bar"><div id="ph" class="hp-fill"></div></div></div>
+    <div class="status" id="pst" style="align-self: flex-end;">
+        <div id="pn"></div>
+        <div class="hp-bar"><div id="ph" class="hp-fill"></div></div>
+    </div>
 </div>
 
 <div id="ui"><div id="msg"></div><div id="cmd" class="cmd-grid"></div></div>
 
 <div id="party-screen">
-    <div style="padding:20px; font-weight:bold; background:var(--sv-blue);">手持ちの助動詞</div>
+    <div style="padding:20px; font-weight:bold; background:var(--b);">手持ちの助動詞</div>
     <div id="party-list" style="flex:1; overflow-y:auto;"></div>
     <button onclick="$('party-screen').style.display='none'" class="run-btn" style="margin:10px;">もどる</button>
 </div>
