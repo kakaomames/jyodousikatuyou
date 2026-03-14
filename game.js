@@ -3,17 +3,30 @@ let D=[], G={}, P={}, E={}, party=[];
 const $=i=>document.getElementById(i), L=t=>$('msg').innerText=t;
 
 // --- 1. 初期化ユニット ---
+/* --- 初期化フローの改造 --- */
 async function init(){
     const [r1, r2] = await Promise.all([fetch('./tanngo.json'), fetch('./config.json')]);
     D = await r1.json(); G = await r2.json();
-    L("最初のパートナーを選んで！");
-    $('cmd').innerHTML = "";
+    
+    // タイトル画面の準備
+    showTitle();
+}
+
+function showTitle() {
+    const area = $('start-btn-area');
+    area.innerHTML = "";
+    L("最初のパートナーを選んで 調査を開始せよ！");
+    
     G.starters.forEach(s => {
-        const b = btn(s.n, "atk-btn", () => { 
+        const b = btn(`${s.n} と出発`, "atk-btn", () => { 
             P = { ...s, ...G.player, h: G.player.hp };
-            party.push(P); spawn(); 
+            party.push(P);
+            // タイトルを消してバトル開始
+            $('title-screen').style.display = "none";
+            spawn(); 
         });
-        $('cmd').appendChild(b);
+        b.style.margin = "10px";
+        area.appendChild(b);
     });
 }
 
