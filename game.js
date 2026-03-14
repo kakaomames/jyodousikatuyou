@@ -1,4 +1,62 @@
 /* game.js - Gemini programming隊 モジュール化パッチ */
+/* --- Canvasエンジンの初期化 --- */
+const layers = {
+    map: $('map-layer').getContext('2d'),
+    mon: $('mon-layer').getContext('2d'),
+    ui: $('ui-layer').getContext('2d')
+};
+
+// 画面サイズに合わせる関数
+function resize() {
+    Object.values($('game-container').querySelectorAll('canvas')).forEach(can => {
+        can.width = window.innerWidth;
+        can.height = window.innerHeight;
+    });
+}
+window.onresize = resize;
+resize();
+
+/* --- 役割ごとの描画関数 --- */
+
+// 1. マップ（背景）を描く
+function drawMap(biomeType) {
+    const ctx = layers.map;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    // ここでWEにおけるchunk.jsのように起伏を描画
+    ctx.fillStyle = biomeType === 'mountain' ? '#555' : '#2d2';
+    ctx.fillRect(0, ctx.canvas.height * 0.6, ctx.canvas.width, ctx.canvas.height * 0.4);
+    missionLog("RENDER", `マップ描画: ${biomeType}`);
+}
+
+// 2. ポケモン（エンティティ）を描く
+function drawMon(id, x, y, isPlayer = false) {
+    const ctx = layers.mon;
+    ctx.clearRect(isPlayer ? 0 : ctx.canvas.width/2, 0, ctx.canvas.width, ctx.canvas.height);
+    
+    // 文字や画像で表現
+    ctx.font = "80px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(isPlayer ? "🦖" : "👾", x, y);
+}
+
+// 3. UI（ウィンドウや文字）を描く
+function drawUI(text) {
+    const ctx = layers.ui;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    
+    // SV風の斜めウィンドウをCanvasのパスで描く
+    ctx.fillStyle = "rgba(0,0,0,0.7)";
+    ctx.beginPath();
+    ctx.moveTo(0, ctx.canvas.height * 0.7);
+    ctx.lineTo(ctx.canvas.width, ctx.canvas.height * 0.65);
+    ctx.lineTo(ctx.canvas.width, ctx.canvas.height);
+    ctx.lineTo(0, ctx.canvas.height);
+    ctx.fill();
+    
+    ctx.fillStyle = "#fff";
+    ctx.font = "20px monospace";
+    ctx.fillText(text, 50, ctx.canvas.height * 0.85);
+}
 let D=[], G={}, P={}, E={}, party=[];
 const $=i=>document.getElementById(i), L=t=>$('msg').innerText=t;
 
